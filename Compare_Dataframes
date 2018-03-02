@@ -1,0 +1,15 @@
+val today = LocalDate.now
+
+val todayTransactions = spark.read
+  .option("header", "true")
+  .option("inferSchema", "true")
+  .json(s"s3n://bucket-name/${today}/transaction.json")
+
+val yesterdayTransactions = spark.read
+  .option("header", "true")
+  .option("inferSchema", "true")
+  .json(s"s3n://bucket-name/${today.minusDays(1)}/transaction.json")
+
+val difference = todayTransactions.except(yesterdayTransactions)
+
+difference.show(25)
